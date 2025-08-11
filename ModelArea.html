@@ -57,34 +57,86 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* Custom file input styling */
-        .file-input-label {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        :root {
+            --primary-color: #FFE500;
+            --primary-color-hover: #e6cf00;
         }
-        .file-input-label:hover {
-            background-color: #f3f4f6;
-            border-color: #FBBF24;
-        }
-        /* Add model form card animation */
-        #add-model-form-card {
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* --- Form & Card Styles --- */
+        .form-container {
+            transition: all 0.5s ease-in-out;
             max-height: 0;
             overflow: hidden;
+            opacity: 0;
         }
-        /* Model Details Modal Animation */
-        #model-details-modal {
-            transition: opacity 0.3s ease-in-out;
+        .form-container.show {
+            max-height: 2500px; /* Adjust as needed */
+            opacity: 1;
         }
-        #model-details-modal .modal-content {
-            transition: transform 0.3s ease-in-out;
+        .model-card {
+            animation: fadeIn 0.5s ease-in-out;
+            position: relative;
         }
+        .model-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+        .model-card:hover .model-card-overlay {
+            opacity: 1;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+    /* --- General Button Styles --- */
+        .main-btn { background-color: var(--primary-color); color: #1a202c; font-weight: bold; padding: 0.75rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); transition: all 0.2s ease-in-out; }
+        .main-btn:hover { background-color: var(--primary-color-hover); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.1); }
     </style>
 </head>
 
@@ -266,173 +318,79 @@
                     </footer>
                 </div>
             </div>
-
-            <!-- Add Model Page (Hidden by default) -->
-            <div id="add-model-page" class="page-content hidden p-8">
-                <header class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-800">Models</h1>
-                    <button id="show-form-btn" class="px-5 py-2 bg-yellow-400 text-white font-bold rounded-lg hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all flex items-center space-x-2">
-                        <span class="material-icons">add</span>
-                        <span>Add New Model</span>
-                    </button>
-                </header>
-
-                <!-- Form Card (hidden by default) -->
-                <div id="add-model-form-card" class="opacity-0">
-                    <div class="bg-white rounded-2xl shadow-xl p-8 mt-6">
-                         <form id="model-form" class="space-y-8">
-                            <input type="hidden" name="modelId" value="">
-                            <!-- Basic Information Section -->
-                            <div class="p-6 border border-gray-200 rounded-xl">
-                                <h2 class="text-xl font-semibold text-gray-700 mb-4">Basic Information</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <input type="text" name="fullName" placeholder="Full Name" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <input type="text" name="nationality" placeholder="Nationality" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <input type="tel" name="phone" placeholder="Phone Number" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <input type="email" name="email" placeholder="Email Address" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <input type="text" name="location" placeholder="Location (City or Emirate)" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                     <input type="number" name="height" placeholder="Height (cm)" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                </div>
-                            </div>
-                            
-                            <!-- Media Section -->
-                            <div class="p-6 border border-gray-200 rounded-xl">
-                                <h2 class="text-xl font-semibold text-gray-700 mb-4">Media & Portfolio</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Profile Photo</label>
-                                        <label class="file-input-label">
-                                            <span class="material-icons text-gray-400">add_a_photo</span>
-                                            <span class="ml-2 text-gray-500">Upload Profile Photo</span>
-                                        </label>
-                                        <input type="file" name="profilePhoto" class="hidden" accept="image/*">
-                                    </div>
-                                     <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Gallery Photos</label>
-                                        <label class="file-input-label">
-                                            <span class="material-icons text-gray-400">photo_library</span>
-                                            <span class="ml-2 text-gray-500">Upload Gallery Images</span>
-                                        </label>
-                                        <input type="file" class="hidden" accept="image/*" multiple>
-                                    </div>
-                                     <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Videos</label>
-                                        <label class="file-input-label">
-                                            <span class="material-icons text-gray-400">video_library</span>
-                                            <span class="ml-2 text-gray-500">Upload Videos</span>
-                                        </label>
-                                        <input type="file" class="hidden" accept="video/*" multiple>
-                                    </div>
-                                     <input type="url" name="portfolioLink" placeholder="Instagram or Portfolio Link" class="self-end w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                </div>
-                            </div>
-
-                            <!-- Professional Details Section -->
-                             <div class="p-6 border border-gray-200 rounded-xl">
-                                <h2 class="text-xl font-semibold text-gray-700 mb-4">Professional Details</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <input type="text" name="languages" placeholder="Languages Spoken" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <select name="experience" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                        <option disabled selected>Experience Level</option>
-                                        <option>Beginner</option>
-                                        <option>Intermediate</option>
-                                        <option>Pro</option>
-                                    </select>
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-600 mb-2">Willing to Wear</label>
-                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="rounded text-yellow-500 focus:ring-yellow-200"><span>Traditional</span></label>
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="rounded text-yellow-500 focus:ring-yellow-200"><span>Casual</span></label>
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="rounded text-yellow-500 focus:ring-yellow-200"><span>Glamour</span></label>
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="rounded text-yellow-500 focus:ring-yellow-200"><span>Swimwear</span></label>
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="rounded text-yellow-500 focus:ring-yellow-200"><span>Lingerie</span></label>
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="rounded text-yellow-500 focus:ring-yellow-200"><span>Sportswear</span></label>
-                                        </div>
-                                    </div>
-                                    <textarea name="clients" placeholder="Previous Clients / Campaigns" rows="4" class="md:col-span-2 w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Internal & Financial Section -->
-                            <div class="p-6 border border-gray-200 rounded-xl">
-                                <h2 class="text-xl font-semibold text-gray-700 mb-4">Internal & Financial Details</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <input type="number" name="rate" placeholder="Rate per Project / Day ($)" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <input type="number" name="commission" placeholder="Commission Split %" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <input type="text" name="iban" placeholder="IBAN Number" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200">
-                                    <textarea name="notes" placeholder="Notes / Comments (for internal use)" rows="4" class="md:col-span-3 w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-200"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Action Button -->
-                            <div class="flex justify-end pt-4 space-x-4">
-                                <button type="button" id="cancel-add-model" class="px-8 py-3 bg-gray-200 text-gray-800 font-bold rounded-lg hover:bg-gray-300 transition-all">
-                                    Cancel
-                                </button>
-                                <button type="submit" id="submit-model-btn" class="px-8 py-3 bg-yellow-400 text-white font-bold rounded-lg hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all">
-                                    Add Model
-                                </button>
-                            </div>
-                         </form>
+            <div id="add-models" class="tab-content hidden">
+                <h2 class="text-3xl font-bold mb-8">Manage Models</h2>
+                
+                <!-- Toolbar: Search and Add Button -->
+                <div class="flex flex-wrap gap-4 items-center justify-between mb-6">
+                    <div class="relative flex-grow max-w-sm">
+                        <input type="text" id="search-model-input" placeholder="Search by name..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     </div>
+                    <button id="show-form-btn" class="main-btn flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle mr-2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+                        Add New Model
+                    </button>
+                </div>
+
+                <!-- Add/Edit Model Form -->
+                <div id="add-model-form-container" class="form-container bg-white p-8 rounded-xl shadow-lg mb-8">
+                    <form id="add-model-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <h3 id="form-title" class="col-span-1 md:col-span-2 text-2xl font-semibold border-b pb-4 mb-2">New Model Information</h3>
+                        <input type="hidden" id="editModelId">
+                        
+                        <!-- Form fields... -->
+                        <div class="col-span-1"><label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text" id="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label><input type="tel" id="phoneNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="nationality" class="block text-sm font-medium text-gray-700 mb-1">Nationality</label><input type="text" id="nationality" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="languages" class="block text-sm font-medium text-gray-700 mb-1">Languages Spoken</label><input type="text" id="languages" placeholder="e.g., English, Arabic" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location (City/Emirate)</label><input type="text" id="location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="height" class="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label><input type="number" id="height" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="experience" class="block text-sm font-medium text-gray-700 mb-1">Experience Level</label><select id="experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"><option>Beginner</option><option>Intermediate</option><option>Pro</option></select></div>
+                        <div class="col-span-1 md:col-span-2"><label for="clients" class="block text-sm font-medium text-gray-700 mb-1">Previous Clients / Campaigns</label><textarea id="clients" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></textarea></div>
+                        <div class="col-span-1 md:col-span-2"><label for="portfolio" class="block text-sm font-medium text-gray-700 mb-1">Instagram or Portfolio Link</label><input type="url" id="portfolio" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="profilePhoto" class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label><input type="file" id="profilePhoto" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200 transition"></div>
+                        <div class="col-span-1"><label for="gallery" class="block text-sm font-medium text-gray-700 mb-1">Gallery (Photos)</label><input type="file" id="gallery" multiple accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200 transition"></div>
+                        <div class="col-span-1"><label for="videos" class="block text-sm font-medium text-gray-700 mb-1">Videos</label><input type="file" id="videos" multiple accept="video/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200 transition"></div>
+                        <div class="col-span-1 md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">Willing to Wear</label><div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" id="willingToWearCheckboxes"><label class="flex items-center space-x-2"><input type="checkbox" value="Traditional" class="rounded text-yellow-500 focus:ring-yellow-400"><span>Traditional</span></label><label class="flex items-center space-x-2"><input type="checkbox" value="Casual" class="rounded text-yellow-500 focus:ring-yellow-400"><span>Casual</span></label><label class="flex items-center space-x-2"><input type="checkbox" value="Glamour" class="rounded text-yellow-500 focus:ring-yellow-400"><span>Glamour</span></label><label class="flex items-center space-x-2"><input type="checkbox" value="Swimwear" class="rounded text-yellow-500 focus:ring-yellow-400"><span>Swimwear</span></label><label class="flex items-center space-x-2"><input type="checkbox" value="Lingerie" class="rounded text-yellow-500 focus:ring-yellow-400"><span>Lingerie</span></label></div></div>
+                        <h3 class="col-span-1 md:col-span-2 text-xl font-semibold border-b pb-3 mb-1 mt-4">Internal & Financial</h3>
+                        <div class="col-span-1"><label for="rate" class="block text-sm font-medium text-gray-700 mb-1">Rate per Project/Day ($)</label><input type="number" id="rate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1"><label for="commission" class="block text-sm font-medium text-gray-700 mb-1">Commission Split (%)</label><input type="number" id="commission" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1 md:col-span-2"><label for="iban" class="block text-sm font-medium text-gray-700 mb-1">IBAN Number</label><input type="text" id="iban" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></div>
+                        <div class="col-span-1 md:col-span-2"><label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes / Comments (Internal)</label><textarea id="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"></textarea></div>
+                        <div class="col-span-1 md:col-span-2 flex justify-end space-x-4 mt-4">
+                            <button type="button" id="cancel-form-btn" class="bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold py-2 px-6 rounded-lg transition">Cancel</button>
+                            <button type="submit" id="save-model-btn" class="main-btn">Save Model</button>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Model Cards Container -->
                 <div id="model-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Example Card -->
                     <div class="bg-white rounded-xl shadow-md overflow-hidden model-card" data-model-id="model-1" data-model-info='{"id":"model-1","fullName":"Eleonora","phoneNumber":"+971 50 123 4567","email":"eleonora@example.com","nationality":"Italian","languages":"Italian, English","location":"Dubai","height":"175","experience":"Intermediate","clients":"Vogue Arabia, Chanel","portfolio":"https://instagram.com/eleonora","profilePhotoUrl":"https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2561&auto=format&fit=crop","willingToWear":["Traditional","Casual","Glamour"],"rate":"1500","commission":"20","iban":"AE070331234567890123456","notes":"Very professional and punctual."}'>
                         <div class="relative">
                             <img class="h-64 w-full object-cover" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2561&auto=format&fit=crop" alt="Model Eleonora">
-                            
+                            <div class="model-card-overlay">
+                                <button class="edit-btn bg-blue-500 hover:bg-blue-600 p-3 rounded-full transition"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
+                                <button class="delete-btn bg-red-500 hover:bg-red-600 p-3 rounded-full transition"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+                            </div>
                         </div>
                         <div class="p-4 cursor-pointer view-details-btn">
                             <h4 class="text-lg font-bold pointer-events-none">Eleonora</h4>
                             <p class="text-sm text-gray-500 pointer-events-none">Intermediate</p>
                         </div>
                     </div>
-                    <!-- New cards will be added here -->
                 </div>
             </div>
         </main>
     </div>
 
     <!-- Model Details Modal -->
-    <div id="model-details-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30 hidden opacity-0">
-        <div class="modal-content bg-white w-full max-w-4xl max-h-[90vh] flex rounded-2xl shadow-2xl transform scale-95">
-             <!-- Left Side: Image -->
-            <div class="w-1/3">
-                <img id="detail-photo" src="https://placehold.co/800x1200/e2e8f0/333?text=Model" class="w-full h-full object-cover rounded-l-2xl">
-            </div>
-            <!-- Right Side: Info -->
-            <div class="w-2/3 text-gray-800 p-10 overflow-y-auto">
-                 <button id="close-details-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-                    <span class="material-icons text-3xl">close</span>
-                </button>
-                <h2 id="detail-name" class="text-4xl font-bold mb-1">Jessica Williams</h2>
-                <p id="detail-location" class="text-lg text-gray-500 mb-6">Dubai, UAE</p>
-
-                <div class="space-y-6">
-                    <div>
-                        <h4 class="text-md font-semibold text-gray-500 uppercase tracking-wider">Contact</h4>
-                        <p id="detail-email" class="text-xl mt-1"></p>
-                        <p id="detail-phone" class="text-xl"></p>
-                    </div>
-                     <div>
-                        <h4 class="text-md font-semibold text-gray-500 uppercase tracking-wider">Profile</h4>
-                        <p id="detail-nationality" class="text-xl mt-1"></p>
-                        <p id="detail-experience" class="text-xl"></p>
-                        <p id="detail-height" class="text-xl"></p>
-                        <p id="detail-languages" class="text-xl"></p>
-                    </div>
-                     <div>
-                        <h4 class="text-md font-semibold text-gray-500 uppercase tracking-wider">Portfolio</h4>
-                        <a id="detail-portfolio" href="#" class="text-xl text-blue-500 hover:underline" target="_blank"></a>
-                    </div>
-                    <div>
-                        <h4 class="text-md font-semibold text-gray-500 uppercase tracking-wider">Previous Clients</h4>
-                        <p id="detail-clients" class="text-xl mt-1"></p>
-                    </div>
-                </div>
-            </div>
+    <div id="model-details-modal" class="modal-overlay">
+        <div id="modal-content-box" class="modal-content">
+            <!-- Content will be injected by JavaScript -->
         </div>
     </div>
     
@@ -477,166 +435,211 @@
                 });
             });
 
-            // --- Add Model Form Card Logic ---
-            const showFormBtn = document.getElementById('show-form-btn');
-            const formCard = document.getElementById('add-model-form-card');
-            const cancelBtn = document.getElementById('cancel-add-model');
-            const modelForm = document.getElementById('model-form');
-            const modelCardsContainer = document.getElementById('model-cards-container');
-            const submitBtn = document.getElementById('submit-model-btn');
+            // --- Model Management ---
+const showFormBtn = document.getElementById('show-form-btn');
+const cancelFormBtn = document.getElementById('cancel-form-btn');
+const formContainer = document.getElementById('add-model-form-container');
+const addModelForm = document.getElementById('add-model-form');
+const modelCardsContainer = document.getElementById('model-cards-container');
+const searchInput = document.getElementById('search-model-input');
+const modal = document.getElementById('model-details-modal');
+const modalContentBox = document.getElementById('modal-content-box');
 
-            let editingItem = null;
+// Function to show/hide the form
+const showForm = (show = true) => {
+    if (!formContainer) return;
+    formContainer.classList.toggle('show', show);
+    if (!show) {
+        addModelForm.reset();
+        document.getElementById('editModelId').value = '';
+        document.getElementById('form-title').textContent = 'New Model Information';
+        document.getElementById('save-model-btn').textContent = 'Save Model';
+        document.getElementById('profilePhoto').required = true;
+    }
+};
 
-            function openFormCard() {
-                if(formCard.style.maxHeight === '0px' || formCard.style.maxHeight === '') {
-                    formCard.style.maxHeight = formCard.scrollHeight + "px";
-                    formCard.style.opacity = '1';
-                    formCard.style.marginTop = '1.5rem';
-                }
-            }
-            
-            function closeFormCard() {
-                formCard.style.maxHeight = '0';
-                formCard.style.opacity = '0';
-                formCard.style.marginTop = '0';
-                modelForm.reset();
-                submitBtn.textContent = 'Add Model';
-                editingItem = null;
-            }
-            
-            if(showFormBtn) {
-                showFormBtn.addEventListener('click', openFormCard);
-            }
-            if(cancelBtn) {
-                cancelBtn.addEventListener('click', closeFormCard);
-            }
-            
-            if(modelForm) {
-                modelForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(modelForm);
-                    const modelData = Object.fromEntries(formData.entries());
-                    
-                    const photoFile = formData.get('profilePhoto');
-                    if (photoFile && photoFile.size > 0) {
-                        modelData.photoUrl = URL.createObjectURL(photoFile);
-                    }
+if(showFormBtn) showFormBtn.addEventListener('click', () => showForm(true));
+if(cancelFormBtn) cancelFormBtn.addEventListener('click', () => showForm(false));
 
-                    if (editingItem) {
-                        // Update existing item
-                        editingItem.querySelector('.model-name').textContent = modelData.fullName || 'N/A';
-                        editingItem.querySelector('.model-experience').textContent = modelData.experience || 'N/A';
-                        
-                        const photoEl = editingItem.querySelector('.model-photo');
-                        if (modelData.photoUrl && photoEl) {
-                           photoEl.src = modelData.photoUrl;
-                        }
-                        
-                        const oldData = JSON.parse(editingItem.dataset.modelData || '{}');
-                        const newData = {...oldData, ...modelData};
-                        editingItem.dataset.modelData = JSON.stringify(newData);
+// Handle Form Submission (for both ADD and EDIT)
+if(addModelForm) addModelForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const modelId = document.getElementById('editModelId').value;
+    const isEditing = !!modelId;
 
-                    } else {
-                        // Add new item
-                        const newCard = document.createElement('div');
-                        newCard.className = "bg-white rounded-lg shadow-md overflow-hidden model-card cursor-pointer";
-                        newCard.dataset.modelData = JSON.stringify(modelData);
+    const willingToWear = Array.from(document.querySelectorAll('#willingToWearCheckboxes input:checked')).map(cb => cb.value);
+    const modelData = {
+        id: isEditing ? modelId : `model-${Date.now()}`,
+        fullName: document.getElementById('fullName').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        email: document.getElementById('email').value,
+        nationality: document.getElementById('nationality').value,
+        languages: document.getElementById('languages').value,
+        location: document.getElementById('location').value,
+        height: document.getElementById('height').value,
+        experience: document.getElementById('experience').value,
+        clients: document.getElementById('clients').value,
+        portfolio: document.getElementById('portfolio').value,
+        willingToWear: willingToWear,
+        rate: document.getElementById('rate').value,
+        commission: document.getElementById('commission').value,
+        iban: document.getElementById('iban').value,
+        notes: document.getElementById('notes').value,
+        profilePhotoUrl: ''
+    };
 
-                        const photoSrc = modelData.photoUrl || `https://placehold.co/400x500/e2e8f0/333?text=${encodeURIComponent(modelData.fullName || 'Model')}`;
+    const profilePhotoInput = document.getElementById('profilePhoto');
+    if (profilePhotoInput.files.length > 0) {
+        modelData.profilePhotoUrl = await toBase64(profilePhotoInput.files[0]);
+    } else if (isEditing) {
+        const existingCard = document.querySelector(`.model-card[data-model-id="${modelId}"]`);
+        modelData.profilePhotoUrl = existingCard.querySelector('img').src;
+    } else {
+        return;
+    }
 
-                        newCard.innerHTML = `
-                            <img class="w-full h-auto object-cover model-photo" src="${photoSrc}" alt="Photo of ${modelData.fullName || 'Model'}">
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg text-gray-800 model-name">${modelData.fullName || 'New Model'}</h3>
-                                <p class="text-md text-gray-600 model-experience">${modelData.experience || 'N/A'}</p>
-                            </div>
-                            <div class="p-3 bg-gray-50 flex justify-end space-x-2">
-                                 <a href="#" class="edit-btn flex items-center justify-center w-10 h-10 bg-gray-200 text-gray-600 rounded-lg hover:bg-blue-500 hover:text-white transition-colors">
-                                    <span class="material-icons text-xl">edit</span>
-                                </a>
-                                <a href="#" class="delete-btn flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                                    <span class="material-icons text-xl">delete</span>
-                                </a>
-                            </div>
-                        `;
-                        modelCardsContainer.prepend(newCard);
-                    }
-                    
-                    closeFormCard();
+    if (isEditing) {
+        const cardToUpdate = document.querySelector(`.model-card[data-model-id="${modelId}"]`);
+        updateModelCard(cardToUpdate, modelData);
+    } else {
+        createModelCard(modelData);
+    }
+
+    showForm(false);
+});
+
+// Function to create a new model card element
+const createModelCard = (data) => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-xl shadow-md overflow-hidden model-card';
+    card.dataset.modelId = data.id;
+    updateModelCard(card, data); // Use update function to set innerHTML and data
+    if(modelCardsContainer) modelCardsContainer.appendChild(card);
+};
+
+// Function to update a card's content and data attribute
+const updateModelCard = (card, data) => {
+    card.dataset.modelInfo = JSON.stringify(data);
+    card.innerHTML = `
+        <div class="relative">
+            <img class="h-64 w-full object-cover" src="${data.profilePhotoUrl}" alt="Model ${data.fullName}">
+            <div class="model-card-overlay">
+                <button class="edit-btn bg-blue-500 hover:bg-blue-600 p-3 rounded-full transition" title="Edit Model"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
+                <button class="delete-btn bg-red-500 hover:bg-red-600 p-3 rounded-full transition" title="Delete Model"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+            </div>
+        </div>
+        <div class="p-4 cursor-pointer view-details-btn">
+            <h4 class="text-lg font-bold pointer-events-none">${data.fullName}</h4>
+            <p class="text-sm text-gray-500 pointer-events-none">${data.experience}</p>
+        </div>
+    `;
+};
+
+// Event Delegation for card actions (View, Edit, Delete)
+if(modelCardsContainer) modelCardsContainer.addEventListener('click', (e) => {
+    const card = e.target.closest('.model-card');
+    if (!card) return;
+
+    const modelData = JSON.parse(card.dataset.modelInfo);
+
+    if (e.target.closest('.delete-btn')) {
+        if (confirm(`Are you sure you want to delete ${modelData.fullName}?`)) {
+            card.style.transform = 'scale(0)';
+            card.addEventListener('transitionend', () => card.remove());
+        }
+    } else if (e.target.closest('.edit-btn')) {
+        populateFormForEdit(modelData);
+    } else if (e.target.closest('.view-details-btn')) {
+        showModelDetailsModal(modelData);
+    }
+});
+
+// Function to populate the form for editing a model
+const populateFormForEdit = (data) => {
+    document.getElementById('editModelId').value = data.id;
+    document.getElementById('form-title').textContent = `Editing: ${data.fullName}`;
+    document.getElementById('save-model-btn').textContent = 'Update Model';
+    
+    for (const key in data) {
+        const el = document.getElementById(key);
+        if (el) {
+            if (key === 'willingToWear') {
+                document.querySelectorAll('#willingToWearCheckboxes input').forEach(cb => {
+                    cb.checked = data.willingToWear.includes(cb.value);
                 });
+            } else {
+                el.value = data[key];
             }
+        }
+    }
+    document.getElementById('profilePhoto').required = false;
+    showForm(true);
+    window.scrollTo(0, 0);
+};
 
-            // --- Model Details Modal Logic ---
-            const detailsModal = document.getElementById('model-details-modal');
-            const closeDetailsBtn = document.getElementById('close-details-modal-btn');
-            const detailsModalContent = detailsModal.querySelector('.modal-content');
+// --- Model Search Functionality ---
+if(searchInput) searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const allCards = document.querySelectorAll('.model-card');
+    allCards.forEach(card => {
+        const modelName = card.querySelector('h4').textContent.toLowerCase();
+        card.classList.toggle('hidden', !modelName.includes(searchTerm));
+    });
+});
 
-            function showDetailsModal(card) {
-                const data = JSON.parse(card.dataset.modelData || '{}');
-                
-                document.getElementById('detail-photo').src = card.querySelector('.model-photo') ? card.querySelector('.model-photo').src : 'https://placehold.co/800x1200/e2e8f0/333?text=Model';
-                document.getElementById('detail-name').textContent = data.fullName || 'N/A';
-                document.getElementById('detail-location').textContent = data.location || 'N/A';
-                document.getElementById('detail-email').textContent = data.email || 'N/A';
-                document.getElementById('detail-phone').textContent = data.phone || 'N/A';
-                document.getElementById('detail-nationality').textContent = data.nationality || 'N/A';
-                document.getElementById('detail-experience').textContent = data.experience || 'N/A';
-                document.getElementById('detail-height').textContent = data.height ? `${data.height} cm` : 'N/A';
-                document.getElementById('detail-languages').textContent = data.languages || 'N/A';
-                document.getElementById('detail-clients').textContent = data.clients || 'N/A';
-                const portfolioLink = document.getElementById('detail-portfolio');
-                portfolioLink.href = data.portfolioLink || '#';
-                portfolioLink.textContent = data.portfolioLink || 'Not available';
+// --- Model Details Modal ---
+const showModelDetailsModal = (data) => {
+    if(!modalContentBox || !modal) return;
+    modalContentBox.innerHTML = `
+        <div class="flex justify-between items-start">
+            <h2 class="text-3xl font-bold mb-6">${data.fullName}</h2>
+            <button id="modal-close-btn" class="text-gray-500 hover:text-gray-800 text-4xl">&times;</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+                <img src="${data.profilePhotoUrl}" alt="${data.fullName}" class="rounded-lg shadow-lg w-full object-cover">
+            </div>
+            <div class="md:col-span-2 space-y-4">
+                <h3 class="text-xl font-semibold border-b pb-2">Details</h3>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <p><strong>Nationality:</strong> ${data.nationality || 'N/A'}</p>
+                    <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
+                    <p><strong>Height:</strong> ${data.height ? data.height + ' cm' : 'N/A'}</p>
+                    <p><strong>Experience:</strong> ${data.experience || 'N/A'}</p>
+                    <p><strong>Languages:</strong> ${data.languages || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${data.phoneNumber || 'N/A'}</p>
+                    <p class="col-span-2"><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                    <p class="col-span-2"><strong>Portfolio:</strong> <a href="${data.portfolio}" target="_blank" class="text-blue-600 hover:underline">${data.portfolio || 'N/A'}</a></p>
+                    <p class="col-span-2"><strong>Wears:</strong> <span class="font-normal">${data.willingToWear.join(', ') || 'N/A'}</span></p>
+                </div>
+                <h3 class="text-xl font-semibold border-b pb-2 pt-4">Internal Info</h3>
+                 <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <p><strong>Rate:</strong> ${data.rate ? '$' + data.rate + '/day' : 'N/A'}</p>
+                    <p><strong>Commission:</strong> ${data.commission ? data.commission + '%' : 'N/A'}</p>
+                    <p class="col-span-2"><strong>IBAN:</strong> ${data.iban || 'N/A'}</p>
+                    <p class="col-span-2"><strong>Notes:</strong><br><span class="font-normal whitespace-pre-wrap">${data.notes || 'None'}</span></p>
+                </div>
+            </div>
+        </div>
+    `;
+    modal.classList.add('show');
+    document.getElementById('modal-close-btn').addEventListener('click', () => modal.classList.remove('show'));
+};
 
-                
-                detailsModal.classList.remove('hidden');
-                setTimeout(() => {
-                    detailsModal.classList.remove('opacity-0');
-                    detailsModalContent.classList.remove('scale-95');
-                }, 10);
-            }
+if(modal) modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.classList.remove('show');
+    }
+});
 
-            function hideDetailsModal() {
-                 detailsModal.classList.add('opacity-0');
-                 detailsModalContent.classList.add('scale-95');
-                setTimeout(() => {
-                    detailsModal.classList.add('hidden');
-                }, 300);
-            }
-            
-            modelCardsContainer.addEventListener('click', function(e) {
-                const card = e.target.closest('.model-card');
-                const actionButton = e.target.closest('a');
-
-                if (actionButton) {
-                    e.preventDefault();
-                    if (actionButton.classList.contains('delete-btn')) {
-                        card.remove();
-                    } else if (actionButton.classList.contains('edit-btn')) {
-                        editingItem = card;
-                        const data = JSON.parse(card.dataset.modelData || '{}');
-                        
-                        // Populate form with item data
-                        for (const key in data) {
-                            if (modelForm.elements[key]) {
-                                modelForm.elements[key].value = data[key];
-                            }
-                        }
-                        
-                        submitBtn.textContent = 'Update Model';
-                        openFormCard();
-                    }
-                } else if (card) {
-                    showDetailsModal(card);
-                }
-            });
-
-            closeDetailsBtn.addEventListener('click', hideDetailsModal);
-            detailsModal.addEventListener('click', (event) => {
-                if (event.target === detailsModal) {
-                    hideDetailsModal();
-                }
-            });
+// Helper to read file as Base64 for image previews
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
 
 
             // --- Date Range Selector Logic ---
