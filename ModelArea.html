@@ -95,6 +95,9 @@
             transform: scale(0.95);
             transition: transform 0.3s ease;
         }
+        .model-card {
+            width: 60%;
+        }        
         .modal-overlay.show .modal-content {
             transform: scale(1);
         }
@@ -247,7 +250,7 @@
                          <p class="text-sm font-bold text-gray-800">Admin</p>
                     </div>
                 </div>
-                <a id="logout-btn" class="flex items-center w-full p-3 text-gray-500 hover:bg-gray-100 rounded-lg" href="#">
+                <a class="flex items-center w-full p-3 text-gray-500 hover:bg-gray-100 rounded-lg" href="#">
                     <span class="material-icons">logout</span>
                     <span class="ml-4 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">Logout</span>
                 </a>
@@ -532,39 +535,38 @@
 
         // --- Initialize App ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // --- Auth Check ---
-            if (!sessionStorage.getItem('user')) {
-                window.location.href = 'login.html';
-                return;
-            }
-
             // --- Firebase Initialization ---
             const firebaseConfig = {
                 apiKey: "AIzaSyCJOdrRcCU29DpuLBC7HEuQoeOiUuO-lcg",
+
                 authDomain: "viral-dose-media.firebaseapp.com",
+
                 projectId: "viral-dose-media",
+
                 storageBucket: "viral-dose-media.firebasestorage.app",
+
                 messagingSenderId: "1019850695051",
+
                 appId: "1:1019850695051:web:82fe957a707654561c0f8e"
+
             };
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
 
-            userId = JSON.parse(sessionStorage.getItem('user')).uid || 'default-user';
-
-            loadModelsFromFirestore();
-            listenForContracts();
-            listenForLogs();
-            initializeChart();
-            
-            // --- Logout Logic ---
-            document.getElementById('logout-btn').addEventListener('click', (e) => {
-                e.preventDefault();
-                sessionStorage.removeItem('user');
-                window.location.href = 'login.html';
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    // User is signed in. Start loading data.
+                    loadModelsFromFirestore();
+                    listenForContracts();
+                    listenForLogs();
+                    initializeChart();
+                } else {
+                    // User is signed out. Sign in anonymously.
+                    await signInAnonymously(auth);
+                }
             });
-
 
             // --- Sidebar Logic ---
             const sidebar = document.getElementById('sidebar');
@@ -1155,20 +1157,20 @@
                 
                 let finalY = 230;
 
-                // Column 1
                 doc.text("Model Name:", 20, finalY);
-                doc.text(contract.modelName, 20, finalY + 5);
-                doc.addImage(contract.modelSignature, 'PNG', 20, finalY + 10, 60, 15);
-                doc.text("Model Signature:", 20, finalY + 30);
-                doc.text(`Date: ${contract.contractDate}`, 20, finalY + 35);
+                doc.text(contract.modelName, 60, finalY);
+                
+                doc.text("Agency Representative (VD Smedia):", 20, finalY + 20);
+                doc.text(contract.agencyRepresentative, 95, finalY + 20);
 
+                doc.addImage(contract.modelSignature, 'PNG', 20, finalY + 5, 60, 15);
+                doc.text("Model Signature:", 20, finalY + 25);
+                
+                doc.addImage(contract.adminSignature, 'PNG', 20, finalY + 25, 60, 15);
+                doc.text("Agency Signature:", 20, finalY + 45);
 
-                // Column 2
-                doc.text("Agency Representative (VD Smedia):", 110, finalY);
-                doc.text(contract.agencyRepresentative, 110, finalY + 5);
-                doc.addImage(contract.adminSignature, 'PNG', 110, finalY + 10, 60, 15);
-                doc.text("Agency Signature:", 110, finalY + 30);
-                doc.text(`Date: ${contract.contractDate}`, 110, finalY + 35);
+                doc.text(`Date: ${contract.contractDate}`, 130, finalY);
+                doc.text(`Date: ${contract.contractDate}`, 130, finalY + 20);
                 
                 doc.save(`Signed-Contract-${contract.modelName.replace(/\s/g, '_')}.pdf`);
             }
