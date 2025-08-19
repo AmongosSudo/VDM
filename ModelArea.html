@@ -530,7 +530,7 @@
         let contracts = [];
         let currentContract = null;
         let adminSignaturePad;
-        let db, auth, userId;
+        let db, auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // --- Initialize App ---
@@ -556,7 +556,6 @@
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    userId = user.uid;
                     // User is signed in. Start loading data.
                     loadModelsFromFirestore();
                     listenForContracts();
@@ -621,9 +620,9 @@
             });
 
             // --- Firestore Functions ---
-            const modelsCollectionRef = () => collection(db, `users/${userId}/models`);
-            const contractsCollectionRef = () => collection(db, `contracts`);
-            const logsCollectionRef = () => collection(db, `users/${userId}/logs`);
+            const modelsCollectionRef = () => collection(db, 'models');
+            const contractsCollectionRef = () => collection(db, 'contracts');
+            const logsCollectionRef = () => collection(db, 'logs');
 
             async function loadModelsFromFirestore() {
                 const querySnapshot = await getDocs(modelsCollectionRef());
@@ -640,7 +639,7 @@
             }
 
             function listenForLogs() {
-                const q = query(collection(db, `users/${userId}/logs`), where("timestamp", "!=", null));
+                const q = query(logsCollectionRef(), where("timestamp", "!=", null));
                 onSnapshot(q, (snapshot) => {
                     const logs = snapshot.docs.map(doc => doc.data());
                     // Sort logs by timestamp descending
@@ -651,8 +650,10 @@
 
             async function addLog(message) {
                 try {
+                    const userEmail = auth.currentUser ? auth.currentUser.email : 'Anonymous';
                     await addDoc(logsCollectionRef(), {
                         message: message,
+                        user: userEmail,
                         timestamp: serverTimestamp()
                     });
                 } catch (error) {
@@ -734,7 +735,7 @@
                 }
 
                 if (isEditing) {
-                    const docRef = doc(db, `users/${userId}/models`, modelId);
+                    const docRef = doc(db, 'models', modelId);
                     await setDoc(docRef, modelData);
                     addLog(`Updated model: ${modelData.fullName}`);
                 } else {
@@ -852,7 +853,7 @@
                     const modelId = deleteBtn.dataset.modelId;
                     const modelData = models.find(m => m.id === modelId);
                     if (modelData && confirm(`Are you sure you want to delete ${modelData.fullName}?`)) {
-                        await deleteDoc(doc(db, `users/${userId}/models`, modelId));
+                        await deleteDoc(doc(db, 'models', modelId));
                         addLog(`Deleted model: ${modelData.fullName}`);
                         loadModelsFromFirestore();
                         modelDetailsModal.classList.remove('show');
@@ -1198,12 +1199,13 @@
                 logsContainer.innerHTML = logs.slice(0, 5).map(log => {
                     const date = log.timestamp.toDate();
                     const timeAgo = formatTimeAgo(date);
+                    const userDisplay = log.user ? `by ${log.user}` : '';
                     return `
                         <div class="flex items-start">
                             <span class="material-icons text-gray-400 mt-1 mr-3">history</span>
                             <div>
                                 <p class="text-gray-800 font-medium">${log.message}</p>
-                                <p class="text-gray-500 text-sm">${timeAgo}</p>
+                                <p class="text-gray-500 text-sm">${timeAgo} ${userDisplay}</p>
                             </div>
                         </div>
                     `;
