@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Signature Pad Library -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-    
+
     <style type="text/tailwindcss">
         body {
             font-family: 'Roboto', sans-serif;
@@ -97,7 +97,7 @@
         }
         .model-card {
             width: 60%;
-        }        
+        }
         .modal-overlay.show .modal-content {
             transform: scale(1);
         }
@@ -250,7 +250,7 @@
                          <p class="text-sm font-bold text-gray-800">Admin</p>
                     </div>
                 </div>
-                <a class="flex items-center w-full p-3 text-gray-500 hover:bg-gray-100 rounded-lg" href="#">
+                <a id="logout-btn" class="flex items-center w-full p-3 text-gray-500 hover:bg-gray-100 rounded-lg" href="#">
                     <span class="material-icons">logout</span>
                     <span class="ml-4 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">Logout</span>
                 </a>
@@ -519,12 +519,12 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- PDF Generation Library ---
         const { jsPDF } = window.jspdf;
-        
+
         // --- Global State ---
         let models = [];
         let contracts = [];
@@ -563,10 +563,21 @@
                     listenForLogs();
                     initializeChart();
                 } else {
-                    // User is signed out. Sign in anonymously.
-                    await signInAnonymously(auth);
+                    // User is signed out. Redirect to login page.
+                    window.location.href = 'login.html';
                 }
             });
+
+            // --- Logout Logic ---
+            const logoutBtn = document.getElementById('logout-btn');
+            if(logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await signOut(auth);
+                    sessionStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                });
+            }
 
             // --- Sidebar Logic ---
             const sidebar = document.getElementById('sidebar');
@@ -648,7 +659,7 @@
                     console.error("Error adding log: ", error);
                 }
             }
-            
+
             // --- Model Management ---
             const showFormBtn = document.getElementById('show-form-btn');
             const cancelFormBtn = document.getElementById('cancel-form-btn');
@@ -692,7 +703,7 @@
                 const modelId = document.getElementById('editModelId').value;
                 const isEditing = !!modelId;
                 const willingToWear = Array.from(document.querySelectorAll('#willingToWearCheckboxes input:checked')).map(cb => cb.value);
-                
+
                 let modelData = {
                     fullName: document.getElementById('fullName').value,
                     phoneNumber: document.getElementById('phoneNumber').value,
@@ -730,7 +741,7 @@
                     await addDoc(modelsCollectionRef(), modelData);
                     addLog(`Added new model: ${modelData.fullName}`);
                 }
-                
+
                 loadModelsFromFirestore();
                 showForm(false);
             });
@@ -772,7 +783,7 @@
                     showModelDetailsModal(modelData);
                 }
             });
-            
+
             const showModelDetailsModal = (data) => {
                 if(!modalContentBox || !modelDetailsModal) return;
                 modalContentBox.innerHTML = `
@@ -817,7 +828,7 @@
                 `;
                 modelDetailsModal.classList.add('show');
             };
-            
+
             if(modelDetailsModal) modelDetailsModal.addEventListener('click', (e) => {
                 if (e.target === modelDetailsModal || e.target.closest('#modal-close-btn')) {
                     modelDetailsModal.classList.remove('show');
@@ -965,7 +976,7 @@
                 contractModal.classList.toggle('show', show);
                 if (!show) contractForm.reset();
             };
-            
+
             const showSignatureModal = (show = true) => {
                 if (!signatureModal) return;
                 signatureModal.classList.toggle('show', show);
@@ -975,7 +986,7 @@
                     adminSignaturePad.clear();
                 }
             };
-            
+
             const showModelLinkModal = (show = true, link = '') => {
                 if (!modelLinkModal) return;
                 modelLinkModal.classList.toggle('show', show);
@@ -1010,7 +1021,7 @@
             // Admin Signature Pad
             const adminSignatureCanvas = document.getElementById('admin-signature-pad');
             adminSignaturePad = new SignaturePad(adminSignatureCanvas);
-            
+
             document.getElementById('clear-admin-signature').addEventListener('click', () => adminSignaturePad.clear());
             document.getElementById('upload-signature').addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -1027,7 +1038,7 @@
                     return;
                 }
                 currentContract.adminSignature = adminSignaturePad.toDataURL();
-                
+
                 const docRef = await addDoc(contractsCollectionRef(), currentContract);
                 addLog(`Generated contract for ${currentContract.modelName}`);
 
@@ -1044,7 +1055,7 @@
                 setTimeout(() => e.target.textContent = 'Copy', 2000);
             });
             document.getElementById('close-link-modal').addEventListener('click', () => showModelLinkModal(false));
-            
+
             function renderContractHistory() {
                 if (!contractHistoryContainer) return;
                 if (contracts.length === 0) {
@@ -1076,7 +1087,7 @@
                     `;
                 }
             }
-            
+
             if(contractHistoryContainer) {
                 contractHistoryContainer.addEventListener('click', async (e) => {
                     const contractId = e.target.dataset.contractId;
@@ -1101,7 +1112,7 @@
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = error => reject(error);
             });
-            
+
             function resizeCanvas(canvas, pad) {
                 const ratio =  Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
@@ -1144,34 +1155,34 @@
                     "11. Legal & Jurisdiction: This Agreement shall be governed by the laws of the United Arab Emirates. Any disputes shall be settled in a court of competent jurisdiction in the UAE.",
                     "12. Signatures: By signing below, both parties agree to the terms and conditions of this agreement."
                 ];
-                
+
                 doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
                 doc.text("Model Agreement - VD Smedia", 105, 20, { align: 'center' });
-                
+
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.text(`This Model Agreement ("Agreement") is made between VD Smedia ("Agency") and the undersigned model ("Model") as of the date of signing.`, 20, 35, { maxWidth: 170 });
-                
+
                 doc.text(contractTerms.map(t => t).join('\n\n'), 20, 50, { maxWidth: 170 });
-                
+
                 let finalY = 230;
 
                 doc.text("Model Name:", 20, finalY);
                 doc.text(contract.modelName, 60, finalY);
-                
+
                 doc.text("Agency Representative (VD Smedia):", 20, finalY + 20);
                 doc.text(contract.agencyRepresentative, 95, finalY + 20);
 
                 doc.addImage(contract.modelSignature, 'PNG', 20, finalY + 5, 60, 15);
                 doc.text("Model Signature:", 20, finalY + 25);
-                
+
                 doc.addImage(contract.adminSignature, 'PNG', 20, finalY + 25, 60, 15);
                 doc.text("Agency Signature:", 20, finalY + 45);
 
                 doc.text(`Date: ${contract.contractDate}`, 130, finalY);
                 doc.text(`Date: ${contract.contractDate}`, 130, finalY + 20);
-                
+
                 doc.save(`Signed-Contract-${contract.modelName.replace(/\s/g, '_')}.pdf`);
             }
 

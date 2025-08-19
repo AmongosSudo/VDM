@@ -42,7 +42,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- Firebase Configuration ---
         const firebaseConfig = {
@@ -56,36 +56,13 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const auth = getAuth(app);
 
         // --- UI Elements ---
         const loginForm = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const errorMessage = document.getElementById('errorMessage');
-
-        // --- Function to create default users if they don't exist ---
-        const createDefaultUsers = async () => {
-            const usersRef = collection(db, "users");
-
-            // Check for admin
-            const adminEmail = "admin@viraldosemedia.com";
-            const adminQuery = query(usersRef, where("email", "==", adminEmail));
-            const adminSnapshot = await getDocs(adminQuery);
-            if (adminSnapshot.empty) {
-                await addDoc(usersRef, {
-                    name: "Admin",
-                    email: adminEmail,
-                    password: "password123",
-                    role: "admin"
-                });
-                console.log("Default admin created.");
-            }
-        };
-
-        // Create default users on page load
-        createDefaultUsers();
-
 
         // --- Login Logic ---
         loginForm.addEventListener('submit', async (e) => {
@@ -95,30 +72,16 @@
             const password = passwordInput.value;
 
             try {
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("email", "==", email), where("password", "==", password));
-                const querySnapshot = await getDocs(q);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-                if (querySnapshot.empty) {
-                    errorMessage.textContent = "Invalid email or password.";
-                    errorMessage.style.display = 'block';
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    const user = doc.data();
-                    user.uid = doc.id; // Add the document ID to the user object
-                    // Use sessionStorage to store user data for the session
-                    sessionStorage.setItem('user', JSON.stringify(user));
-
-                    if (user.role === 'admin') {
-                        window.location.href = 'ModelArea.html';
-                    }
-                });
+                // Use sessionStorage to store user data for the session
+                sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, email: user.email }));
+                window.location.href = 'ModelArea.html';
 
             } catch (error) {
                 console.error("Error logging in: ", error);
-                errorMessage.textContent = "An error occurred. Please try again.";
+                errorMessage.textContent = "Invalid email or password.";
                 errorMessage.style.display = 'block';
             }
         });
