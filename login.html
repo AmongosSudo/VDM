@@ -82,7 +82,7 @@
                 console.log("Default admin created.");
             }
         };
-        
+
         // Create default users on page load
         createDefaultUsers();
 
@@ -107,6 +107,7 @@
 
                 querySnapshot.forEach((doc) => {
                     const user = doc.data();
+                    user.uid = doc.id; // Add the document ID to the user object
                     // Use sessionStorage to store user data for the session
                     sessionStorage.setItem('user', JSON.stringify(user));
 
