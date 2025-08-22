@@ -893,7 +893,100 @@
             });
 
             // --- Date Range Selector Logic ---
-            // ... (All date range logic is unchanged)
+            const dateRangeBtn = document.getElementById('date-range-btn');
+            const dateRangeCard = document.getElementById('date-range-card');
+            const dateRangeText = document.getElementById('date-range-text');
+            const dateRangeOptions = document.querySelectorAll('.date-range-option');
+            const fromDateInput = document.getElementById('from-date');
+            const toDateInput = document.getElementById('to-date');
+            const applyDateRangeBtn = document.getElementById('apply-date-range');
+
+            const toggleDateRangeCard = (show) => {
+                if(!dateRangeCard) return;
+                if (show) {
+                    dateRangeCard.classList.remove('hidden', 'opacity-0', 'scale-95');
+                } else {
+                    dateRangeCard.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        dateRangeCard.classList.add('hidden');
+                    }, 200); // Corresponds to transition duration
+                }
+            };
+
+            const formatDate = (date) => {
+                return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+            }
+
+            const updateDateInputs = (days) => {
+                const endDate = new Date();
+                const startDate = new Date();
+                if(days){
+                    startDate.setDate(endDate.getDate() - days);
+                    if(fromDateInput) fromDateInput.value = formatDate(startDate);
+                    if(toDateInput) toDateInput.value = formatDate(endDate);
+                } else { // All Time
+                    if(fromDateInput) fromDateInput.value = '';
+                    if(toDateInput) toDateInput.value = '';
+                }
+            }
+
+            if (dateRangeBtn) {
+                dateRangeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(dateRangeCard) {
+                        const isHidden = dateRangeCard.classList.contains('hidden');
+                        toggleDateRangeCard(isHidden);
+                    }
+                });
+            }
+
+            if (dateRangeOptions) {
+                dateRangeOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const range = option.textContent;
+                        if(dateRangeText) dateRangeText.textContent = range;
+
+                        dateRangeOptions.forEach(opt => {
+                            opt.classList.remove('bg-yellow-400', 'text-white');
+                            opt.classList.add('bg-gray-100', 'text-gray-700');
+                        });
+                        option.classList.add('bg-yellow-400', 'text-white');
+                        option.classList.remove('bg-gray-100', 'text-gray-700');
+
+                        if (range === 'Last 7 Days') updateDateInputs(7);
+                        else if (range === 'Last 30 Days') updateDateInputs(30);
+                        else if (range === 'Last Year') updateDateInputs(365);
+                        else if (range === 'All Time') updateDateInputs(null);
+
+                        toggleDateRangeCard(false);
+                        // Here you would typically trigger a data refresh function, e.g., loadDataForRange()
+                    });
+                });
+            }
+
+            if (applyDateRangeBtn) {
+                applyDateRangeBtn.addEventListener('click', () => {
+                    if (fromDateInput.value && toDateInput.value) {
+                         if(dateRangeText) {
+                            const from = new Date(fromDateInput.value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const to = new Date(toDateInput.value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            dateRangeText.textContent = `${from} - ${to}`;
+                         }
+                    } else {
+                        if(dateRangeText) dateRangeText.textContent = 'Custom Range';
+                    }
+                    toggleDateRangeCard(false);
+                    // Here you would typically trigger a data refresh function, e.g., loadDataForRange()
+                });
+            }
+
+            document.addEventListener('click', (e) => {
+                if (dateRangeCard && !dateRangeCard.classList.contains('hidden')) {
+                    if (!dateRangeBtn.contains(e.target) && !dateRangeCard.contains(e.target)) {
+                        toggleDateRangeCard(false);
+                    }
+                }
+            });
 
             // --- Chart Logic ---
             function initializeChart() {
